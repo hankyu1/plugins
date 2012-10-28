@@ -1,5 +1,7 @@
 // load socket.io.min.js
 document.write('<script src="socket.io.min.js"></script>');
+//document.write('<script src="http://localhost:80/socket.io/socket.io.js"></script>');
+//document.write('<script src="socket.io.min.js" type="text/javascript" charset="utf-8"></script>')
 
 // ECMAScript 5 strict mode
 "use strict";
@@ -56,7 +58,7 @@ cr.plugins_.Connect_io = function(runtime)
 	
 	// my function
 	// send data
-	instanceProto.send = function(data)
+	instanceProto.Send = function(data)
 	{
 		var socket = this.socket;
 		
@@ -81,9 +83,9 @@ cr.plugins_.Connect_io = function(runtime)
 			
 		var addr = host.toString() + ':' + port.toString();
 		//socket = window["io"]["connect"](host + ':' + port, {'force new connection': true});
-		socket = window["io"]["connect"](addr, {'force new connection': true});
-		this.socket = socket;
-		
+		//document.write('<script src="' + addr + '/socket.io/socket.io.js"></script>');
+		socket = window["io"]["connect"](addr);
+
 		var instance = this;
 		var runtime = instance.runtime;
 		
@@ -104,25 +106,16 @@ cr.plugins_.Connect_io = function(runtime)
 		      runtime.trigger(pluginProto.cnds.OnDisconnect,instance);
 		      this.socket = null;
 		});
-	};
-	
-	
-	// only called if a layout object - draw to a canvas 2D context
-	instanceProto.draw = function(ctx)
-	{
-	};
-	
-	// only called if a layout object in WebGL mode - draw to the WebGL context
-	// 'glw' is not a WebGL context, it's a wrapper - you can find its methods in GLWrap.js in the install
-	// directory or just copy what other plugins do.
-	instanceProto.drawGL = function (glw)
-	{
+		
+		this.socket = socket;
 	};
 
+    
 	//////////////////////////////////////
 	// Conditions
 	function Cnds() {};
 
+    pluginProto.cnds = new Cnds();
 	// the example condition
 	Cnds.prototype.OnData = function ()
 	{
@@ -155,7 +148,8 @@ cr.plugins_.Connect_io = function(runtime)
 	//////////////////////////////////////
 	// Actions
 	function Acts() {};
-
+    pluginProto.acts = new Acts();
+    
 	// the example action
 	Acts.prototype.Connect = function (host)
 	{
@@ -180,11 +174,18 @@ cr.plugins_.Connect_io = function(runtime)
 	
 	// ... other actions here ...
 	
-	pluginProto.acts = new Acts();
+	
 	
 	//////////////////////////////////////
 	// Expressions
 	// get last data from dataStack
+	function jpt_splice(arr, index) {
+	    for (var i = index, len = arr.length - 1; i < len; i++)
+	        arr[i] = arr[i + 1];
+
+	    arr.length = len;
+	}
+	
 	function get_last_data(dataStack)
 	{
 		var dataLength = dataStack.length;
@@ -198,17 +199,19 @@ cr.plugins_.Connect_io = function(runtime)
 	}
 	
 	function Exps() {};
-	
+	pluginProto.exps = new Exps();
 	Exps.prototype.Data = function (ret)	
 	{
 		var dataStack = this.dataStack;
 		
 		var data = get_last_data(dataStack);
-		result.set_string(data);
+		
+		//document.write(data);
+		ret.set_string(data);
 	};
 	
 	// ... other expressions here ...
 	
-	pluginProto.exps = new Exps();
+	
 
 }());
